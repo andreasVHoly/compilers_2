@@ -48,7 +48,7 @@ def t_WHITESPACE(t):
 
 # def t_error(self,t):
 def t_error(t):
-    print("Bad char '%s'" % t.value[0])
+    print("lexical error on line " + str(t))
     t.lexer.skip(1)
 
 # imports a file and based on the boolean outputs a token file or not
@@ -61,7 +61,7 @@ def importFile(fileName, write):
     inFile.close()
     # we pass the file contents to the lexer
     lexer.input(data)
-    #TODO chnage this to normal without _1
+
     # if we want to write out a token file
     if write:
         # we make a new filename from the old one to change the extension from .ula to .tkn
@@ -80,11 +80,11 @@ def importFile(fileName, write):
                 # we write it out to our file
                 outFile.write(tok.type + "," + str(tok.value) + '\n')
                 # printing output
-                print(tok.type + "," + str(tok.value))
+                #print(tok.type + "," + str(tok.value))
             # for anything else we just want the value
             else:
                 outFile.write(str(tok.value) + '\n')
-                print(str(tok.value))
+                #print(str(tok.value))
 
         # close the output file
         outFile.close()

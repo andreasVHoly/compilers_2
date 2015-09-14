@@ -89,11 +89,12 @@ def p_factor_id(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input!")
+    print("parser error on line " + str(p.lineno))
 
 
 # converts the token file to a format we can work with and convert into an AST
 def convertTokenFile():
+
     newData = []
     # we loop while we have data
     while True:
@@ -137,6 +138,7 @@ def convertTokenFile():
     # we loop over what we found and add the output of the parser into an array
     for y in range(1, len(content)):
         mainTree.append(parser.parse(str(content[y]), lexer=lex_ula.lexer))
+
 
 
 # traverses the tuples to create the AST recursively
@@ -199,8 +201,8 @@ def buildParser(name):
     for r in mainTree:
         traverseTree(r, 2)
     # now that the AST has been built we print it out
-    #for i in final:
-       # print(i, end='')
+    for i in final:
+        print(i, end='')
     # then we create the AST file
     createASTFile(name, final)
 

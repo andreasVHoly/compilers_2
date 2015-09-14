@@ -1,0 +1,10 @@
+#blacklist errything
+*
+#whitelist all dirs
+!*/
+#whitelist all cpp and h files
+!*.txt
+!.gitignore
+!*.py
+!*.out
+!*zip

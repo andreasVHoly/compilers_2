@@ -182,31 +182,35 @@ def createASTFile(name,tree):
 
 # Build the parser
 parser = yacc.yacc()
-# the file name which is supplied via command line args
-file = str(sys.argv[1])
-# init of some variables
 final = []
 content = []
 mainTree = []
-# we import the file in the lexer without creating a token file
-lex_ula.importFile(file, False)
-# we convert the token stream
-convertTokenFile()
-# we append default strings for the AST
-final.append("Start\n\tProgram")
-# we go through the tree and traverse it
-for r in mainTree:
-    traverseTree(r, 2)
-# now that the AST has been built we print it out
-for i in final:
-    print(i, end='')
-# then we create the AST file
-createASTFile(file, final)
+
+def buildParser(name):
+
+
+    # we import the file in the lexer without creating a token file
+    lex_ula.importFile(name, False)
+    # we convert the token stream
+    convertTokenFile()
+    # we append default strings for the AST
+    final.append("Start\n\tProgram")
+    # we go through the tree and traverse it
+    for r in mainTree:
+        traverseTree(r, 2)
+    # now that the AST has been built we print it out
+    #for i in final:
+       # print(i, end='')
+    # then we create the AST file
+    createASTFile(name, final)
 
 
 
+def main():
+    buildParser()
 
-
+if __name__ == "__main__":
+    main()
 
 
 

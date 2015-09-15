@@ -59,8 +59,10 @@ def t_WHITESPACE(t):
 
 # def t_error(self,t):
 def t_error(t):
+    outFile = open(errors_ula.fileName, 'w')
+    print("lexical error on line " + str(t.lineno), file = outFile)
     print("lexical error on line " + str(t.lineno))
-    errors_ula.errors.append("lexical error on line " + str(t.lineno) + "\n")
+    #errors_ula.errors.append("lexical error on line " + str(t.lineno) + "\n")
     t.lexer.skip(len(t.value))
 
 # imports a file and based on the boolean outputs a token file or not

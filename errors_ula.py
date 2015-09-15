@@ -3,15 +3,14 @@ __author__ = 'VHLAND002'
 
 import sys
 import parse_ula
-import lex_ula
 
 
 
 
 # array that will hold all variables that have been defined
 definedVars = []
-
-
+errors = []
+fileName = str(sys.argv[1])[0:-4] + '_1.err'
 
 
 
@@ -59,13 +58,13 @@ def checkVariable(var):
 
 def exportErrors(name):
     # export all errors here
-    name = name[0:-4] + '.ast'
+    name = name[0:-4] + '_1.err'
     outFile = open(name, 'w')
     # we loop through the tree and write the output to the file
-
+    outFile.write(errors[0])
     outFile.close()
 
-errors = []
+
 
 def main():
     #importUlaFile("ula_samples/comments.ast")
@@ -74,14 +73,18 @@ def main():
     #name = "ula_error_samples/perror1.ula"
     #name = "ula_error_samples/perror2.ula"
     #name = "ula_error_samples/serror1.ula"
-    name = "ula_error_samples/serror2.ula"
+    #name = "ula_error_samples/serror2.ula"
     #lex_ula.importFile(name, True)
-    parse_ula.buildParser(name)
-
+    #print(errors)
+    parse_ula.buildParser(sys.argv[1])
+    #print(errors)
     for r in parse_ula.mainTree:
         if r is not None:
             traverseTree(r)
     #print(definedVars)
+    #print(errors)
+    #exportErrors(sys.argv[1])
+
 
 if __name__ == "__main__":
     main()

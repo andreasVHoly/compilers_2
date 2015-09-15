@@ -42,13 +42,23 @@ def t_COMMENT(t):
 def t_WHITESPACE(t):
     #check for either of the characters and mark them as whitespace
     r'[ \t\r\n]+'
+    if t.value == '\n':
+        t.lexer.lineno += len(t.value)
     t.value = 'WHITESPACE'
     return t
 
 
+#def t_NEWLINE(t):
+    #r'[\n]'
+    #t.value = 'WHITESPACE'
+    #t.lexer.lineno += 1
+    #return t
+
+
+
 # def t_error(self,t):
 def t_error(t):
-    print("lexical error on line " + str(t))
+    print("lexical error on line " + str(t.lineno))
     t.lexer.skip(1)
 
 # imports a file and based on the boolean outputs a token file or not

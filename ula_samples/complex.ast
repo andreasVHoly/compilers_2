@@ -14,3 +14,7 @@ Start
 						FLOAT_LITERAL,60
 					FloatExpression
 						FLOAT_LITERAL,2e4
+		AssignStatement
+			ID,val1
+			FloatExpression
+				FLOAT_LITERAL,5

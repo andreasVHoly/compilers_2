@@ -1,0 +1,6 @@
+/* doing some 
+calculations */
+
+val = 12
+result = val#(60$2e4) // answer
+val1=&2

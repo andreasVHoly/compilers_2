@@ -1,0 +1,6 @@
+Start
+	Program
+		AssignStatement
+			ID,a
+			FloatExpression
+				FLOAT_LITERAL,1

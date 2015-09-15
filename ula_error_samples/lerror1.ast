@@ -1,6 +1,0 @@
-Start
-	Program
-		AssignStatement
-			ID,val
-			FloatExpression
-				FLOAT_LITERAL,12.34

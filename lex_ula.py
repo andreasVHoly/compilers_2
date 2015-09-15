@@ -2,6 +2,7 @@ __author__ = 'VHLAND002'
 
 import lex
 import sys
+import errors_ula
 
 tokens = ('ID', 'FLOAT_LITERAL', 'ADD', 'SUB', 'MULT', 'DIV', 'EQUAL', 'OBRACKET', 'CBRACKET', 'WHITESPACE', 'COMMENT')
 
@@ -59,7 +60,8 @@ def t_WHITESPACE(t):
 # def t_error(self,t):
 def t_error(t):
     print("lexical error on line " + str(t.lineno))
-    t.lexer.skip(1)
+    errors_ula.errors.append("lexical error on line " + str(t.lineno) + "\n")
+    t.lexer.skip(len(t.value))
 
 # imports a file and based on the boolean outputs a token file or not
 def importFile(fileName, write):

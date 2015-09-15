@@ -4,6 +4,7 @@ from lex_ula import tokens
 import ply.yacc as yacc
 import lex_ula
 import sys  # for command line args
+import errors_ula
 
 # we set the precendence of the operators
 precedence = (
@@ -89,8 +90,12 @@ def p_factor_id(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    print("parser error on line " + str(p.lineno))
-
+    if p:
+        print("parser error on line " + str(p.lineno))
+        errors_ula.errors.append("parser error on line " + str(p.lineno) + '\n')
+    else:
+        print("parser error on line " + str(p))
+        errors_ula.errors.append("parser error on line " + str(p) + '\n')
 
 # converts the token file to a format we can work with and convert into an AST
 def convertTokenFile():
@@ -98,6 +103,7 @@ def convertTokenFile():
     newData = []
     # we loop while we have data
     while True:
+        #print(content)
         # we get the next token
         tok = lex_ula.lexer.token()
         # if it is null, we break and add the statement we have accumulated
@@ -107,7 +113,8 @@ def convertTokenFile():
             for t in range(0, len(newData)):
                 statement += str(newData[t])
             # we add this into the main array of perfect code
-            content.append(str(statement))
+            if statement != '':
+                content.append(str(statement))
             # break out of teh while loop
             break
         # if we are dealing with a type we want to ignore
@@ -122,7 +129,8 @@ def convertTokenFile():
             for t in range(0,len(newData)-1):
                 statement += str(newData[t])
             # we add the statement
-            content.append(str(statement))
+            if statement != '':
+                content.append(str(statement))
             # we reset everything to hold the new statement
             newData.clear()
             # we add the variable name
@@ -136,8 +144,15 @@ def convertTokenFile():
         previous = tok
 
     # we loop over what we found and add the output of the parser into an array
-    for y in range(1, len(content)):
-        mainTree.append(parser.parse(str(content[y]), lexer=lex_ula.lexer))
+
+    if errors_ula.errors:
+        return
+
+    #print(content)
+    for y in range(0, len(content)):
+        #print("passing in "+str(content[y]))
+
+        mainTree.append(parser.parse(str(content[y]), lexer=lex_ula.lexer, tracking=True))
 
 
 
@@ -146,18 +161,23 @@ def convertTokenFile():
 # @param: value- this is the indentation value for the tab chars
 def traverseTree(tree, value):
     # if we have a tuple list with only 2 elements we have 2 leaves or the parent of a 2 leaves
+
+
+
     if len(tree) == 2:
         # when we have a parent
         if tree[0] == 'FloatExpression':
             # we append to the final string
             final.append('\n'+"\t"*value+ str(tree[0]))
             # we traverse the children
-            traverseTree(tree[1],value+1)
+            if tree[1] is not None:
+                traverseTree(tree[1],value+1)
         elif tree[0] == 'IdentifierExpression':
             # we append to the final string
             final.append('\n'+"\t"*value+ str(tree[0]))
             # we traverse the children
-            traverseTree(tree[1],value+1)
+            if tree[1] is not None:
+                traverseTree(tree[1],value+1)
         else:
             # we append to the final string
             final.append('\n'+"\t"*value+ str(tree[0]) + "," + str(tree[1]))
@@ -167,7 +187,8 @@ def traverseTree(tree, value):
     final.append('\n'+"\t"*value+ str(tree[0]))
     # we loop over the rest and recursively assess them, incrementing the value to get the formatting right
     for q in range(1, len(tree)):
-        traverseTree(tree[q], value+1)
+        if q is not None:
+            traverseTree(tree[q], value+1)
 
 
 # this creates the ast file from the final tree
@@ -198,13 +219,15 @@ def buildParser(name):
     # we append default strings for the AST
     final.append("Start\n\tProgram")
     # we go through the tree and traverse it
+    #print(mainTree)
     for r in mainTree:
-        traverseTree(r, 2)
+        if r is not None:
+            traverseTree(r, 2)
     # now that the AST has been built we print it out
-    for i in final:
-        print(i, end='')
+    #for i in final:
+        #print(i, end='')
     # then we create the AST file
-    createASTFile(name, final)
+    #createASTFile(name, final)
 
 
 

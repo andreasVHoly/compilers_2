@@ -34,19 +34,22 @@ start = 'start'
 # statement -> ID = expression
 def p_statement_expression(p):
     'statement : ID EQUAL expression'
-    p[0] = ('AssignStatement',('ID',p[1]),p[3])
+    #p[0] = ('AssignStatement',('ID',p[1]),p[3])
+    p[0] = [p[2], [p[1]], p[3]]
 
 
 # Expression -> Expression @ Term
 def p_expression_add(p):
     'expression : expression ADD term'
-    p[0] = ('AddExpression', p[1], p[3])
+    #p[0] = ('AddExpression', p[1], p[3])
+    p[0] = [p[2], p[1], p[3]]
 
 
 # Expression -> Expression $ Term
 def p_expression_sub(p):
     'expression : expression SUB term'
-    p[0] = ('SubExpression', p[1], p[3])
+    #p[0] = ('SubExpression', p[1], p[3])
+    p[0] = [p[2], p[1], p[3]]
 
 
 # Expression -> Term
@@ -58,13 +61,15 @@ def p_expression_term(p):
 # Term -> Term # Factor
 def p_term_mult(p):
     'term : term MULT factor'
-    p[0] = ('MulExpression', p[1], p[3])
+    #p[0] = ('MulExpression', p[1], p[3])
+    p[0] = [p[2], p[1], p[3]]
 
 
 # Term -> Term & Factor
 def p_term_div(p):
     'term : term DIV factor'
-    p[0] = ('DivExpression', p[1], p[3])
+    #p[0] = ('DivExpression', p[1], p[3])
+    p[0] = [p[2], p[1], p[3]]
 
 # Term -> Factor
 def p_term_factor(p):
@@ -81,14 +86,15 @@ def p_factor_expression(p):
 # Factor -> float
 def p_factor_float_literal(p):
     'factor : FLOAT_LITERAL'
-    p[0] = ('FloatExpression', ('FLOAT_LITERAL',p[1]))
+    #p[0] = ('FloatExpression', ('FLOAT_LITERAL',p[1]))
+    p[0] = [p[1]]
 
 
 # Factor -> identifier
 def p_factor_id(p):
     'factor : ID'
-    p[0] = ('IdentifierExpression', ('ID',p[1]))
-
+    #p[0] = ('IdentifierExpression', ('ID',p[1]))
+    p[0] = [p[1]]
 
 # Error rule for syntax errors
 def p_error(p):
@@ -221,7 +227,7 @@ content = []
 mainTree = []
 parse_errors = []
 
-def buildParser(name):
+def buildParser(name, errorcall):
 
 
     # we import the file in the lexer without creating a token file
@@ -241,7 +247,10 @@ def buildParser(name):
     # then we create the AST file
     #createASTFile(name, final)
     #print("sending " + str(parse_errors) + " from parser")
-    return parse_errors
+    if errorcall:
+        return parse_errors
+    else:
+        return mainTree
 
 
 def main():

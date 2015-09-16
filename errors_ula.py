@@ -83,7 +83,7 @@ def main():
     #name = "ula_error_samples/serror2.ula"
     #lex_ula.importFile(name, True)
     #print(errors)
-    errors = parse_ula.buildParser(sys.argv[1])
+    errors = parse_ula.buildParser(sys.argv[1], True)
     #errors = parse_ula.buildParser(name)
     #print("errors_ula: list from parser " + str(errors))
     if errors:

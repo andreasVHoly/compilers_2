@@ -65,23 +65,35 @@ function = ir.Function(module, functiontype, name='main')
 block = function.append_basic_block(name='entry')
 builder = ir.IRBuilder(block)
 
-name = sys.argv[1]
-#name = "ula_irrun_samples/add.ula" #pass
-#name = "ula_irrun_samples/assign.ula" #pass
-#name = "ula_irrun_samples/circumference.ula" #pass
-#name = "ula_irrun_samples/expr.ula" #pass
-#name = "ula_irrun_samples/multi.ula" #pass
 
-parseTree = parse_ula.buildParser(name, False)
-#print(parseTree)
-for k in parseTree:
-    convertedTree.append(k)
 
-#print(convertedTree)
-traverseTree(convertedTree)
-builder.ret(builder.load(variables[last_var]))
-file = open(name[0:-4] + '.ir', 'w')
-file.write(str(module))
-file.close()
-print(str(module))
+def buildIRCode(name, print):
+    #name =
+    #name = "ula_irrun_samples/add.ula" #pass
+    #name = "ula_irrun_samples/assign.ula" #pass
+    #name = "ula_irrun_samples/circumference.ula" #pass
+    #name = "ula_irrun_samples/expr.ula" #pass
+    #name = "ula_irrun_samples/multi.ula" #pass
+
+    parseTree = parse_ula.buildParser(name, False)
+    #print(parseTree)
+    for k in parseTree:
+        convertedTree.append(k)
+
+    #print(convertedTree)
+    traverseTree(convertedTree)
+    builder.ret(builder.load(variables[last_var]))
+    if print:
+        file = open(name[0:-4] + '.ir', 'w')
+        file.write(str(module))
+        file.close()
+        print(str(module))
+    return module
+
+
+def main():
+    buildIRCode(sys.argv[1], True)
+
+if __name__ == "__main__":
+    main()
 

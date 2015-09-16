@@ -102,6 +102,7 @@ def main():
     #print("final error list: " + str(semantic_errors))
     #print(definedVars)
     #print(errors)
+   # print(semantic_errors)
     exportErrors(sys.argv[1])
     #exportErrors(name)
 

@@ -2,10 +2,10 @@ __author__ = 'VHLAND002'
 
 import lex
 import sys
-import errors_ula
+
 
 tokens = ('ID', 'FLOAT_LITERAL', 'ADD', 'SUB', 'MULT', 'DIV', 'EQUAL', 'OBRACKET', 'CBRACKET', 'WHITESPACE', 'COMMENT')
-
+lex_errors = []
 
 # Regular expression rules for simple tokens
 
@@ -59,11 +59,13 @@ def t_WHITESPACE(t):
 
 # def t_error(self,t):
 def t_error(t):
-    outFile = open(errors_ula.fileName, 'w')
-    print("lexical error on line " + str(t.lineno), file = outFile)
-    print("lexical error on line " + str(t.lineno))
+    #outFile = open(errors_ula.fileName, 'w')
+    #print("lexical error on line " + str(t.lineno), file = outFile)
+    #print("lexical error on line " + str(t.lineno))
+    #lex_errors.append("lexical error on line " + str(t.lineno))
     #errors_ula.errors.append("lexical error on line " + str(t.lineno) + "\n")
     t.lexer.skip(len(t.value))
+    return t
 
 # imports a file and based on the boolean outputs a token file or not
 def importFile(fileName, write):
@@ -102,6 +104,7 @@ def importFile(fileName, write):
 
         # close the output file
         outFile.close()
+
 
 # this starts the lexer
 lexer = lex.lex()

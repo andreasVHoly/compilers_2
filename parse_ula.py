@@ -4,7 +4,9 @@ from lex_ula import tokens
 import ply.yacc as yacc
 import lex_ula
 import sys  # for command line args
-import errors_ula
+
+
+lineNo = 0
 
 # we set the precendence of the operators
 precedence = (
@@ -91,11 +93,13 @@ def p_factor_id(p):
 # Error rule for syntax errors
 def p_error(p):
     if p:
-        print("parser error on line " + str(p.lineno))
-        errors_ula.errors.append("parser error on line " + str(p.lineno) + '\n')
+        #print("parser error on line " + str(p.lineno))
+
+        parse_errors.append("parse error on line " + str(p.lineno) + '\n')
     else:
-        print("parser error on line " + str(p))
-        errors_ula.errors.append("parser error on line " + str(p) + '\n')
+        #print("parser error on line " + str(p))
+
+        parse_errors.append("parse error on line " + str(lineNo) + '\n')
 
 # converts the token file to a format we can work with and convert into an AST
 def convertTokenFile():
@@ -117,6 +121,12 @@ def convertTokenFile():
                 content.append(str(statement))
             # break out of teh while loop
             break
+
+        if tok.type == 'error':
+            parse_errors.append("lexical error on line " + str(tok.lineno))
+            #print("lexical error on line " + str(tok.lineno))
+
+
         # if we are dealing with a type we want to ignore
         if tok.value == 'COMMENT' or tok.value == 'WHITESPACE':
             # continue to the next iteration
@@ -145,13 +155,14 @@ def convertTokenFile():
 
     # we loop over what we found and add the output of the parser into an array
 
-    if errors_ula.errors:
-        return
+    #if errors_ula.errors:
+       # return
 
     #print(content)
     for y in range(0, len(content)):
         #print("passing in "+str(content[y]))
-
+        global lineNo
+        lineNo += 1
         mainTree.append(parser.parse(str(content[y]), lexer=lex_ula.lexer, tracking=True))
 
 
@@ -208,6 +219,7 @@ parser = yacc.yacc()
 final = []
 content = []
 mainTree = []
+parse_errors = []
 
 def buildParser(name):
 
@@ -228,7 +240,8 @@ def buildParser(name):
         #print(i, end='')
     # then we create the AST file
     #createASTFile(name, final)
-
+    #print("sending " + str(parse_errors) + " from parser")
+    return parse_errors
 
 
 def main():

@@ -8,73 +8,52 @@ import ir_ula
 import sys
 
 
-# All these initializations are required for code generation!
+# initalize the llvm
 llvm.initialize()
 llvm.initialize_native_target()
-llvm.initialize_native_asmprinter()  # yes, even this one
+llvm.initialize_native_asmprinter()
 
+
+# we get the file name from command line
 name = sys.argv[1]
-#name = "ula_irrun_samples/add.ula" #pass
-#name = "ula_irrun_samples/assign.ula" #pass
-#name = "ula_irrun_samples/circumference.ula" #pass
-#name = "ula_irrun_samples/expr.ula" #pass
-#name = "ula_irrun_samples/multi.ula" #pass
-
-
+# we get the output from our modified parser
 llvm_ir = str(ir_ula.buildIRCode(name, False))
 
-#llvm_ir = """
- #  ; ModuleID = "examples/ir_fpadd.py"
-  # target triple = "unknown-unknown-unknown"
-   #target datalayout = ""
-#
-#   define double @"fpadd"(double %".1", double %".2")
- #  {
- #  entry:
- #    %"res" = fadd double %".1", %".2"
- #    ret double %"res"
-  # }
-   #"""
-
+# creates the execution engine
 def create_execution_engine():
-    """
-    Create an ExecutionEngine suitable for JIT code generation on
-    the host CPU.  The engine is reusable for an arbitrary number of
-    modules.
-    """
-    # Create a target machine representing the host
+
+    # create target machine
     target = llvm.Target.from_default_triple()
     target_machine = target.create_target_machine()
-    # And an execution engine with an empty backing module
+    # we create an empty backing module
     backing_mod = llvm.parse_assembly("")
     engine = llvm.create_mcjit_compiler(backing_mod, target_machine)
     return engine
 
-
+# where we compile the ir code
 def compile_ir(engine, llvm_ir):
-    """
-    Compile the LLVM IR string with the given engine.
-    The compiled module object is returned.
-    """
-    # Create a LLVM module object from the IR
+    # we create a module from the str( parser output)
     mod = llvm.parse_assembly(llvm_ir)
     mod.verify()
-    # Now add the module and make sure it is ready for execution
+    # we add the module
     engine.add_module(mod)
     engine.finalize_object()
     return mod
 
-
+# we make a new engine
 engine = create_execution_engine()
+# we generate a mod from the engine and our parser code
 mod = compile_ir(engine, llvm_ir)
 
-# Look up the function pointer (a Python int)
+# we get the function pointer to our main function
 func_ptr = engine.get_function_address("main")
 
-# Run the function via ctypes
+# we generate a ctype function declaration that returns a float and takes no args
 cfunc = CFUNCTYPE(c_float)(func_ptr)
+# we run the c function
 res = cfunc()
 print(res)
+# we write out the result
 file = open(name[0:-4] + '.run', 'w')
 file.write(str(res))
 file.close()

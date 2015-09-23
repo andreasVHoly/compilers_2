@@ -1,87 +1,78 @@
 __author__ = 'VHLAND002'
 from llvmlite import ir
-from ctypes import CFUNCTYPE, c_float
-import llvmlite.binding as llvm
+
 import parse_ula
 import sys
 import re
 
+# where we keep all of our variables and their memory locations
 variables = {}
+# the last variable we encountered
 last_var = ""
+# the final tree we use for the IR code generation
 convertedTree = ["Program"]
 
 
-
-
+# we traverse the tree and build the IR code
 def traverseTree(tree):
     global last_var
-
-    #if str(tree[1]) in variables:
-     #   tree[1] = variables[str(tree[1])]
-    #elif str(tree[2]) in variables:
-     #   tree[2] = variables[str(tree[2])]
-    #print(tree)
+    # if we encounter the beginning of the list
     if tree[0] == 'Program':
-        for i in tree[1:]: #traverse the rest of the tree
+        for i in tree[1:]: # traverse the rest of the tree
             traverseTree(i)
     elif tree[0] == '=':
-        last_var = tree[1][0] # access 0th element of 1, this will be the var name
-        variables[last_var] = builder.alloca(ir.FloatType()) # allocate a memory address
-        builder.store(traverseTree(tree[2]), variables[last_var]) # store the rest of the tree as the variables after math
+        # access 0th element of 1, this will be the var name
+        last_var = tree[1][0]
+        # allocate a memory address
+        variables[last_var] = builder.alloca(ir.FloatType())
+        # store the rest of the tree in the memory location define for that variable
+        builder.store(traverseTree(tree[2]), variables[last_var])
 
+    # we handle all arithmatic operators
     elif tree[0] == '$': # subtract
-        return(builder.fsub(traverseTree(tree[1]), traverseTree(tree[2])))
+        return builder.fsub(traverseTree(tree[1]), traverseTree(tree[2]))
 
     elif tree[0] == '&': # divide
-        return(builder.fdiv(traverseTree(tree[1]), traverseTree(tree[2])))
+        return builder.fdiv(traverseTree(tree[1]), traverseTree(tree[2]))
 
     elif tree[0] == '#': # multiply
-
-
-        return(builder.fmul(traverseTree(tree[1]), traverseTree(tree[2])))
+        return builder.fmul(traverseTree(tree[1]), traverseTree(tree[2]))
 
     elif tree[0] == '@': # add
-        return(builder.fadd(traverseTree(tree[1]), traverseTree(tree[2])))
+        return builder.fadd(traverseTree(tree[1]), traverseTree(tree[2]))
 
+    # we check for integers and use a regular experssion to check for floats
     elif tree[0].isnumeric() or re.match("[+-]?\d+(\.\d+)?([eE][+-]?\d+)?", tree[0]):
-        return(ir.Constant(ir.FloatType(), float(tree[0])))
-
+        return ir.Constant(ir.FloatType(), float(tree[0]))
+    # this should only ever catch variable names
     else:
-        #print(type(tree[0]))
-        #(tree[0])
-        #print(variables[tree[0]])
-        #return(ir.Constant(ir.FloatType(), variables[tree[0]]))
-        return(builder.load(variables[tree[0]]))
+        # we load the variables content based on the memory location from the builder
+        return builder.load(variables[tree[0]])
 
-def checkVariable(name):
-    global variables
-    if name in variables:
-        return
 
+# we make a new type
 floattype = ir.FloatType()
+# we create a new function that returns a float we define above and takes no args
 functiontype = ir.FunctionType(floattype, ())
+# we assign the module name as ula
 module = ir.Module(name='ula')
+# the function is called main
 function = ir.Function(module, functiontype, name='main')
+# we add an entry block
 block = function.append_basic_block(name='entry')
+# we build the IR code
 builder = ir.IRBuilder(block)
 
 
 
 def buildIRCode(name, print):
-    #name =
-    #name = "ula_irrun_samples/add.ula" #pass
-    #name = "ula_irrun_samples/assign.ula" #pass
-    #name = "ula_irrun_samples/circumference.ula" #pass
-    #name = "ula_irrun_samples/expr.ula" #pass
-    #name = "ula_irrun_samples/multi.ula" #pass
 
+    # we generate the parser list
     parseTree = parse_ula.buildParser(name, False)
-    #print(parseTree)
     for k in parseTree:
         convertedTree.append(k)
-
-    #print(convertedTree)
     traverseTree(convertedTree)
+    # we build the IR code
     builder.ret(builder.load(variables[last_var]))
     if print:
         file = open(name[0:-4] + '.ir', 'w')
